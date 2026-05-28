@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harverd Terminal AI</title>
+    <style>
+        /* Retro Terminal Styling */
+        body {
+            background-color: #000000;
+            color: #00FF00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        #terminal {
+            flex: 1;
+            border: 2px solid #00FF00;
+            padding: 15px;
+            overflow-y: auto;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            margin-bottom: 10px;
+            background-color: #050505;
+        }
+
+        .line {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        .user-line {
+            color: #00AA00;
+        }
+
+        .ai-line {
+            color: #00FF00;
+        }
+
+        #input-container {
+            display: flex;
+            border: 2px solid #00FF00;
+            background-color: #000000;
+        }
+
+        #prompt-symbol {
+            padding: 10px;
+            color: #00FF00;
+            font-weight: bold;
+        }
+
+        #user-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #00FF00;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            padding: 10px 5px;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="terminal">
+        <div class="line ai-line">[SYSTEM INITIALIZED]</div>
+        <div class="line ai-line">Welcome to HARVERD Core. Terminal connection established.</div>
+        <div class="line ai-line">Ready for input...</div>
+    </div>
+
+    <div id="input-container">
+        <span id="prompt-symbol">HARVERD_></span>
+        <input type="text" id="user-input" autofocus placeholder="Type a message..." autocomplete="off">
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const userInput = document.getElementById('user-input');
+
+        // Handle enter key press
+        userInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && userInput.value.trim() !== '') {
+                const message = userInput.value;
+                appendLine('YOU: ' + message, 'user-line');
+                userInput.value = '';
+                
+                // Simulate AI processing
+                appendLine('HARVERD: Thinking...', 'ai-line', true);
+                
+                fetchAIResponse(message);
+            }
+        });
+
+        function appendLine(text, className, isTemp = false) {
+            const line = document.createElement('div');
+            line.className = 'line ' + className;
+            line.innerText = text;
+            if (isTemp) {
+                line.id = 'temp-loader';
+            }
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Connects to a standard public text-generation endpoint
+        async function fetchAIResponse(prompt) {
+            try {
+                const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://dummyjson.com/quotes/random'));
+                const data = await response.json();
+                const contents = JSON.parse(data.contents);
+                
+                // Remove loader
+                const loader = document.getElementById('temp-loader');
+                if (loader) loader.remove();
+
+                // Output simulated conversational response based on open data
+                appendLine('HARVERD: " ' + contents.quote + ' " — ' + contents.author, 'ai-line');
+            } catch (error) {
+                const loader = document.getElementById('temp-loader');
+                if (loader) loader.remove();
+                appendLine('HARVERD: ERROR - Failed to fetch response from network.', 'ai-line');
+            }
+        }
+    </script>
+</body>
+</html>
